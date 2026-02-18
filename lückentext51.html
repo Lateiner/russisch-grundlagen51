@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Trainer: Story mit Sofort-Feedback</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #f4f7f9;
+            --card-bg: #ffffff;
+            --gap-bg: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--secondary);
+            margin: 0;
+            padding: 15px;
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h1 { text-align: center; border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-top: 0; }
+
+        .intro {
+            background-color: #eef7ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--primary);
+            font-size: 0.95rem;
+        }
+
+        .story-box {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 25px;
+            border-radius: 12px;
+            font-size: 1.15rem;
+            text-align: justify;
+            margin-bottom: 30px;
+        }
+
+        /* Lücken Styling */
+        .gap {
+            display: inline-block;
+            min-width: 130px;
+            height: 2rem;
+            background-color: var(--gap-bg);
+            border-bottom: 3px solid var(--primary);
+            margin: 0 4px;
+            padding: 0 8px;
+            vertical-align: middle;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .gap.correct { 
+            background-color: #dff0d8; 
+            border-bottom-color: var(--success); 
+            color: var(--success); 
+        }
+
+        .gap.incorrect { 
+            background-color: #f2dede; 
+            border-bottom-color: var(--error); 
+            color: var(--error); 
+        }
+
+        /* Wort-Pool */
+        .word-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            background: #fdfdfd;
+            border: 2px dashed #bdc3c7;
+            border-radius: 10px;
+            min-height: 60px;
+            justify-content: center;
+        }
+
+        .word-card {
+            background: var(--secondary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 1rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .word-card.selected { 
+            background: var(--primary); 
+            transform: scale(1.1);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .word-card.used { 
+            opacity: 0.2; 
+            cursor: default; 
+            transform: none; 
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-action {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .btn-reset { background: #95a5a6; }
+        .btn-solve { background: var(--primary); }
+
+        @media (max-width: 600px) {
+            .story-box { font-size: 1.05rem; line-height: 2.2; }
+            .gap { min-width: 110px; margin-bottom: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Ein Tag im Park</h1>
+    
+    <div class="intro">
+        <strong>Anleitung:</strong> Vervollständige die Geschichte. 
+        1. Klicke ein Partizip im Pool an. 
+        2. Klicke auf eine Lücke. 
+        Das System zeigt dir <strong>sofort</strong>, ob die Wahl richtig (grün) oder falsch (rot) war.
+    </div>
+
+    <div class="story-box" id="story">
+        Сегодня солнечный день. В парке много людей. Я вижу высокого мужчину, 
+        <span class="gap" data-answer="работающего" id="gap-1"></span> 
+        на скамейке. Рядом сидит молодая девушка, 
+        <span class="gap" data-answer="читающая" id="gap-2"></span> 
+        интересную книгу. Маленькая собака, 
+        <span class="gap" data-answer="бегущая" id="gap-3"></span> 
+        за мячом, очень весёлая. В небе я вижу солнце, 
+        <span class="gap" data-answer="светящее" id="gap-4"></span> 
+        ярко. На траве сидят дети, 
+        <span class="gap" data-answer="играющие" id="gap-5"></span> 
+        вместе. Вдали слышны птицы, 
+        <span class="gap" data-answer="поющие" id="gap-6"></span> 
+        в лесу. Старый дедушка, 
+        <span class="gap" data-answer="гуляющий" id="gap-7"></span> 
+        с внуком, улыбается. Студент, 
+        <span class="gap" data-answer="думающий" id="gap-8"></span> 
+        об экзамене, сидит в тишине.
+    </div>
+
+    <div class="word-pool" id="pool">
+        <!-- JS füllt dies -->
+    </div>
+
+    <div class="controls">
+        <button class="btn-action btn-reset" onclick="resetStory()">Alles zurücksetzen</button>
+        <button class="btn-action btn-solve" onclick="solveStory()">Lösung anzeigen</button>
+    </div>
+</div>
+
+<script>
+    const words = [
+        "работающего", "читающая", "бегущая", "светящее", 
+        "играющие", "поющие", "гуляющий", "думающий"
+    ];
+
+    let selectedWordElement = null;
+
+    function initPool() {
+        const pool = document.getElementById('pool');
+        pool.innerHTML = '';
+        const shuffled = [...words].sort(() => Math.random() - 0.5);
+        
+        shuffled.forEach(w => {
+            const div = document.createElement('div');
+            div.className = 'word-card';
+            div.innerText = w;
+            div.onclick = () => {
+                if (div.classList.contains('used')) return;
+                document.querySelectorAll('.word-card').forEach(c => c.classList.remove('selected'));
+                selectedWordElement = div;
+                div.classList.add('selected');
+            };
+            pool.appendChild(div);
+        });
+    }
+
+    document.querySelectorAll('.gap').forEach(gap => {
+        gap.onclick = () => {
+            // Wenn die Lücke schon voll ist -> Wort zurück in den Pool
+            if (gap.innerText !== "") {
+                const wordToReturn = gap.innerText;
+                document.querySelectorAll('.word-card').forEach(c => {
+                    if (c.innerText === wordToReturn) c.classList.remove('used');
+                });
+                gap.innerText = "";
+                gap.className = "gap";
+            } 
+            // Wenn ein Wort ausgewählt ist -> einsetzen
+            else if (selectedWordElement) {
+                const wordText = selectedWordElement.innerText;
+                const correctAnswer = gap.getAttribute('data-answer');
+                
+                gap.innerText = wordText;
+                selectedWordElement.classList.add('used');
+                selectedWordElement.classList.remove('selected');
+
+                // Sofort-Feedback
+                if (wordText === correctAnswer) {
+                    gap.classList.add('correct');
+                } else {
+                    gap.classList.add('incorrect');
+                }
+                
+                selectedWordElement = null;
+            }
+        };
+    });
+
+    function resetStory() {
+        document.querySelectorAll('.gap').forEach(gap => {
+            gap.innerText = "";
+            gap.className = "gap";
+        });
+        document.querySelectorAll('.word-card').forEach(c => c.classList.remove('used', 'selected'));
+        selectedWordElement = null;
+        initPool();
+    }
+
+    function solveStory() {
+        resetStory();
+        document.querySelectorAll('.gap').forEach(gap => {
+            const ans = gap.getAttribute('data-answer');
+            gap.innerText = ans;
+            gap.classList.add('correct');
+            document.querySelectorAll('.word-card').forEach(c => {
+                if (c.innerText === ans) c.classList.add('used');
+            });
+        });
+    }
+
+    window.onload = initPool;
+</script>
+
+</body>
+</html>
