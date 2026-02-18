@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Trainer: 10 Satz-Puzzles zu Partizipien</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #f4f7f9;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--secondary);
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 10px auto;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { text-align: center; margin-top: 0; }
+        h1 { border-bottom: 3px solid var(--primary); padding-bottom: 10px; color: var(--secondary); }
+
+        .intro {
+            background-color: #eef7ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--primary);
+            font-size: 0.95rem;
+        }
+
+        .puzzle-card {
+            background: #fff;
+            border: 2px solid #ecf0f1;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .instruction {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .translation-hint {
+            font-style: italic;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .construction-zone {
+            min-height: 60px;
+            background: #f9f9f9;
+            border: 2px dashed #bdc3c7;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .word-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            background: #fdfdfd;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            min-height: 50px;
+        }
+
+        .word-tile {
+            background: var(--secondary);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 1rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .word-tile:hover { background: var(--primary); transform: translateY(-2px); }
+        .word-tile.placed { background: var(--primary); }
+
+        .construction-zone.correct { border-color: var(--success); background-color: #dff0d8; }
+        .construction-zone.incorrect { border-color: var(--error); background-color: #f2dede; }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .btn-reset { background: #95a5a6; }
+        .btn-solve { background: var(--primary); }
+
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+            min-height: 1.2em;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 10px; }
+            .word-tile { font-size: 0.9rem; padding: 6px 10px; }
+            .puzzle-card { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik</h1>
+    <h2>Satz-Puzzle: Partizipialausdrücke</h2>
+
+    <div class="intro">
+        <strong>Anleitung:</strong> Bilde korrekte Sätze mit aktiven Partizipien. 
+        Klicke die Wörter in der richtigen Reihenfolge an, um sie in das graue Feld zu setzen. 
+        Klicke ein Wort im grauen Feld an, um es wieder zu entfernen.
+    </div>
+
+    <div id="puzzle-container"></div>
+</div>
+
+<script>
+    const tasks = [
+        {
+            id: 1,
+            correctOrder: ["Студент,", "читающий", "книгу", "в библиотеке,", "мой друг."],
+            translation: "Der Student, der in der Bibliothek ein Buch liest, ist mein Freund."
+        },
+        {
+            id: 2,
+            correctOrder: ["Девушка,", "живущая", "в Москве,", "моя сестра."],
+            translation: "Das Mädchen, das in Moskau lebt, ist meine Schwester."
+        },
+        {
+            id: 3,
+            correctOrder: ["Мальчик,", "играющий", "в саду,", "очень весёлый."],
+            translation: "Der Junge, der im Garten spielt, ist sehr lustig."
+        },
+        {
+            id: 4,
+            correctOrder: ["Люди,", "много", "работающие", "здесь,", "устают."],
+            translation: "Leute, die hier viel arbeiten, werden müde."
+        },
+        {
+            id: 5,
+            correctOrder: ["Мужчина,", "работающий", "в офисе,", "мой дядя."],
+            translation: "Der Mann, der im Büro arbeitet, ist mein Onkel."
+        },
+        {
+            id: 6,
+            correctOrder: ["Женщина,", "разговаривающая", "с профессором,", "наш учитель."],
+            translation: "Die Frau, die mit dem Professor spricht, ist unsere Lehrerin."
+        },
+        {
+            id: 7,
+            correctOrder: ["Дети,", "играющие", "на улице,", "очень громкие."],
+            translation: "Die Kinder, die auf der Straße spielen, sind sehr laut."
+        },
+        {
+            id: 8,
+            correctOrder: ["Художник,", "рисующий", "картину,", "знаменит."],
+            translation: "Der Künstler, der das Bild malt, ist berühmt."
+        },
+        {
+            id: 9,
+            correctOrder: ["Студенты,", "знающие", "ответ,", "поднимают", "руки."],
+            translation: "Die Studenten, die die Antwort wissen, heben die Hände."
+        },
+        {
+            id: 10,
+            correctOrder: ["Солнце,", "светящее", "на небе,", "очень яркое."],
+            translation: "Die Sonne, die am Himmel scheint, ist sehr hell."
+        }
+    ];
+
+    let userSelections = {};
+
+    function shuffle(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex != 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+
+    function initPuzzles() {
+        const container = document.getElementById('puzzle-container');
+        tasks.forEach(task => {
+            userSelections[task.id] = [];
+            
+            // Zufällig gemischte Kopie der Wörter erstellen
+            const shuffledWords = shuffle([...task.correctOrder]);
+
+            const card = document.createElement('div');
+            card.className = 'puzzle-card';
+            card.id = `card-${task.id}`;
+            
+            card.innerHTML = `
+                <div class="instruction">Bilde den Satz:</div>
+                <span class="translation-hint">"${task.translation}"</span>
+                <div class="construction-zone" id="zone-${task.id}"></div>
+                <div class="word-pool" id="pool-${task.id}">
+                    ${shuffledWords.map((word, idx) => `
+                        <div class="word-tile" id="tile-${task.id}-${idx}" onclick="addWord(${task.id}, '${word}', ${idx})">${word}</div>
+                    `).join('')}
+                </div>
+                <div class="feedback" id="feedback-${task.id}"></div>
+                <div class="btn-group">
+                    <button class="action-btn btn-reset" onclick="resetTask(${task.id})">Zurücksetzen</button>
+                    <button class="action-btn btn-solve" onclick="solveTask(${task.id})">Lösung anzeigen</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function addWord(taskId, word, tileIdx) {
+        const tile = document.getElementById(`tile-${taskId}-${tileIdx}`);
+        if (tile.style.visibility === 'hidden') return;
+
+        userSelections[taskId].push({word, tileIdx});
+        tile.style.visibility = 'hidden';
+        updateUI(taskId);
+    }
+
+    function removeWord(taskId, selectionIdx) {
+        const selection = userSelections[taskId][selectionIdx];
+        const tile = document.getElementById(`tile-${taskId}-${selection.tileIdx}`);
+        
+        tile.style.visibility = 'visible';
+        userSelections[taskId].splice(selectionIdx, 1);
+        updateUI(taskId);
+    }
+
+    function updateUI(taskId) {
+        const zone = document.getElementById(`zone-${taskId}`);
+        const feedback = document.getElementById(`feedback-${taskId}`);
+        const task = tasks.find(t => t.id === taskId);
+        
+        zone.innerHTML = '';
+        userSelections[taskId].forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.className = 'word-tile placed';
+            div.innerText = item.word;
+            div.onclick = () => removeWord(taskId, idx);
+            zone.appendChild(div);
+        });
+
+        zone.className = 'construction-zone';
+        feedback.innerText = '';
+
+        if (userSelections[taskId].length === task.correctOrder.length) {
+            const userSentence = userSelections[taskId].map(i => i.word).join(' ');
+            const correctSentence = task.correctOrder.join(' ');
+            
+            if (userSentence === correctSentence) {
+                zone.classList.add('correct');
+                feedback.innerText = 'Richtig! ✔';
+                feedback.style.color = 'var(--success)';
+            } else {
+                zone.classList.add('incorrect');
+                feedback.innerText = 'Reihenfolge falsch. ✖';
+                feedback.style.color = 'var(--error)';
+            }
+        }
+    }
+
+    function resetTask(taskId) {
+        userSelections[taskId] = [];
+        const pool = document.getElementById(`pool-${taskId}`);
+        pool.querySelectorAll('.word-tile').forEach(tile => tile.style.visibility = 'visible');
+        updateUI(taskId);
+    }
+
+    function solveTask(taskId) {
+        resetTask(taskId);
+        const task = tasks.find(t => t.id === taskId);
+        
+        const tiles = Array.from(document.getElementById(`pool-${taskId}`).querySelectorAll('.word-tile'));
+        
+        // Wörter in der richtigen Reihenfolge suchen und hinzufügen
+        task.correctOrder.forEach(targetWord => {
+            const tile = tiles.find(t => t.innerText === targetWord && t.style.visibility !== 'hidden');
+            if (tile) {
+                const idx = tile.id.split('-').pop();
+                addWord(taskId, targetWord, idx);
+            }
+        });
+    }
+
+    // Initialisierung
+    window.onload = initPuzzles;
+</script>
+
+</body>
+</html>
