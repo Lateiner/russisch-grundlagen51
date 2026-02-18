@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Trainer: Kommasetzung</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #f4f7f9;
+            --card-bg: #ffffff;
+            --comma-color: #e67e22;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--secondary);
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 10px auto;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { text-align: center; margin-top: 0; }
+        h1 { border-bottom: 3px solid var(--primary); padding-bottom: 10px; }
+
+        .intro {
+            background-color: #eef7ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--primary);
+        }
+
+        .exercise-card {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+
+        .sentence-box {
+            font-size: 1.25rem;
+            line-height: 2.5;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0 4px;
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .word { display: inline-block; }
+
+        .comma-zone {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 26px;
+            height: 34px;
+            cursor: pointer;
+            border-radius: 4px;
+            background-color: #eee;
+            color: transparent;
+            font-weight: bold;
+            font-size: 1.5rem;
+            transition: all 0.2s;
+            user-select: none;
+            margin: 0 2px;
+        }
+
+        .comma-zone:hover { background-color: #ddd; }
+        .comma-zone.active { color: var(--comma-color); background-color: transparent; }
+
+        .exercise-card.correct-status { border: 2px solid var(--success); background-color: #fafffa; }
+        .exercise-card.incorrect-status { border: 2px solid var(--error); background-color: #fffafa; }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .btn-reset { background: #95a5a6; }
+        .btn-check { background: var(--secondary); }
+        .btn-solve { background: var(--primary); }
+
+        .feedback-text {
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 1.2em;
+        }
+
+        .translation {
+            display: block;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .sentence-box { font-size: 1.1rem; line-height: 3; }
+            .comma-zone { width: 22px; }
+            .btn-action { flex-grow: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik</h1>
+    <h2>Komma-Setzer: Partizipien</h2>
+
+    <div class="intro">
+        <strong>Regel:</strong> 
+        1. Substantiv + Partizipialausdruck → <strong>Kommas</strong> (Студент, читающий книгу, ...)<br>
+        2. Partizipialausdruck + Substantiv → <strong>KEINE Kommas</strong> (Читающий книгу студент ...)<br><br>
+        <em>Klicke auf die grauen Felder, um Kommas zu setzen oder zu entfernen.</em>
+    </div>
+
+    <div id="exercise-list"></div>
+</div>
+
+<script>
+    const tasks = [
+        {
+            id: 1,
+            words: ["Студент", "читающий", "книгу", "сидит", "здесь."],
+            commaPositions: [1, 3],
+            translation: "Der Student, der ein Buch liest, sitzt hier."
+        },
+        {
+            id: 2,
+            words: ["Читающий", "книгу", "студент", "сидит", "здесь."],
+            commaPositions: [],
+            translation: "Der ein Buch lesende Student sitzt hier."
+        },
+        {
+            id: 3,
+            words: ["Мальчик", "играющий", "в", "саду", "мой", "брат."],
+            commaPositions: [1, 4],
+            translation: "Der Junge, der im Garten spielt, ist mein Bruder."
+        },
+        {
+            id: 4,
+            words: ["Играющий", "в", "саду", "мальчик", "мой", "брат."],
+            commaPositions: [],
+            translation: "Der im Garten spielende Junge ist mein Bruder."
+        },
+        {
+            id: 5,
+            words: ["Мы", "видим", "девушку", "живущую", "в", "Москве."],
+            commaPositions: [3],
+            translation: "Wir sehen das Mädchen, das in Moskau lebt."
+        },
+        {
+            id: 6,
+            words: ["Живущая", "в", "Москве", "девушка", "наша", "соседка."],
+            commaPositions: [],
+            translation: "Das in Moskau lebende Mädchen ist unsere Nachbarin."
+        },
+        {
+            id: 7,
+            words: ["Люди", "много", "работающие", "здесь", "устают."],
+            commaPositions: [1, 4],
+            translation: "Die Leute, die hier viel arbeiten, werden müde."
+        },
+        {
+            id: 8,
+            words: ["Много", "работающие", "здесь", "люди", "устают."],
+            commaPositions: [],
+            translation: "Die hier viel arbeitenden Leute werden müde."
+        },
+        {
+            id: 9,
+            words: ["Студент", "знающий", "ответ", "поднял", "руку."],
+            commaPositions: [1, 3],
+            translation: "Der Student, der die Antwort kennt, hob die Hand."
+        },
+        {
+            id: 10,
+            words: ["Знающий", "ответ", "студент", "поднял", "руку."],
+            commaPositions: [],
+            translation: "Der die Antwort kennende Student hob die Hand."
+        }
+    ];
+
+    function render() {
+        const container = document.getElementById('exercise-list');
+        tasks.forEach(task => {
+            const card = document.createElement('div');
+            card.className = 'exercise-card';
+            card.id = `card-${task.id}`;
+            
+            let sentenceHtml = `<span class="translation">"${task.translation}"</span><div class="sentence-box">`;
+            
+            task.words.forEach((word, index) => {
+                sentenceHtml += `<span class="word">${word}</span>`;
+                if (index < task.words.length - 1) {
+                    sentenceHtml += `<span class="comma-zone" id="comma-${task.id}-${index + 1}" onclick="toggleComma(${task.id}, ${index + 1})">,</span>`;
+                }
+            });
+            
+            sentenceHtml += `</div><div class="feedback-text" id="feedback-${task.id}"></div>`;
+            sentenceHtml += `
+                <div class="controls">
+                    <button class="btn-action btn-check" onclick="checkTask(${task.id})">Überprüfen</button>
+                    <button class="btn-action btn-reset" onclick="resetTask(${task.id})">Reset</button>
+                    <button class="btn-action btn-solve" onclick="solveTask(${task.id})">Lösung</button>
+                </div>
+            `;
+            
+            card.innerHTML = sentenceHtml;
+            container.appendChild(card);
+        });
+    }
+
+    function toggleComma(taskId, pos) {
+        const card = document.getElementById(`card-${taskId}`);
+        if (card.classList.contains('correct-status')) return;
+        const zone = document.getElementById(`comma-${taskId}-${pos}`);
+        zone.classList.toggle('active');
+    }
+
+    function checkTask(taskId) {
+        const task = tasks.find(t => t.id === taskId);
+        const card = document.getElementById(`card-${taskId}`);
+        const feedback = document.getElementById(`feedback-${taskId}`);
+        
+        let userPositions = [];
+        card.querySelectorAll('.comma-zone').forEach(zone => {
+            const pos = parseInt(zone.id.split('-').pop());
+            if (zone.classList.contains('active')) userPositions.push(pos);
+        });
+
+        const isCorrect = JSON.stringify(userPositions.sort()) === JSON.stringify(task.commaPositions.sort());
+
+        if (isCorrect) {
+            card.className = 'exercise-card correct-status';
+            if (task.commaPositions.length === 0) {
+                feedback.innerText = "Richtig! Kein Komma im Satz.";
+            } else {
+                feedback.innerText = "Hervorragend! Die Kommas sind perfekt gesetzt.";
+            }
+            feedback.style.color = "var(--success)";
+        } else {
+            card.className = 'exercise-card incorrect-status';
+            feedback.innerText = "Nicht ganz richtig. Prüfe die Stellung des Partizipialausdrucks.";
+            feedback.style.color = "var(--error)";
+        }
+    }
+
+    function resetTask(taskId) {
+        const card = document.getElementById(`card-${taskId}`);
+        card.className = 'exercise-card';
+        card.querySelectorAll('.comma-zone').forEach(z => z.classList.remove('active'));
+        document.getElementById(`feedback-${taskId}`).innerText = "";
+    }
+
+    function solveTask(taskId) {
+        const task = tasks.find(t => t.id === taskId);
+        resetTask(taskId);
+        task.commaPositions.forEach(pos => {
+            const zone = document.getElementById(`comma-${taskId}-${pos}`);
+            if (zone) zone.classList.add('active');
+        });
+        checkTask(taskId);
+    }
+
+    window.onload = render;
+</script>
+
+</body>
+</html>
