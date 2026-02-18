@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Trainer: 10 Bilder & Sätze zuordnen</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #f4f7f9;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--secondary);
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 10px auto;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { text-align: center; margin-top: 0; }
+        h1 { border-bottom: 3px solid var(--primary); padding-bottom: 10px; font-size: 1.6rem; }
+
+        .intro {
+            background-color: #eef7ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--primary);
+            font-size: 0.9rem;
+        }
+
+        /* Spielfeld Layout */
+        .matching-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Karten Styling */
+        .match-card {
+            background: #fff;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            min-height: 60px;
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            user-select: none;
+        }
+
+        .image-card { font-size: 2.5rem; }
+
+        .match-card:hover {
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+
+        .match-card.selected {
+            background-color: #e8f4fd;
+            border-color: var(--primary);
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+        }
+
+        /* Erfolg: Jedes Paar bekommt eine eigene Farbe über JS */
+        .match-card.correct {
+            cursor: default;
+            transform: none;
+            border-width: 3px;
+            color: #fff; /* Text weiß für besseren Kontrast auf Farben */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .match-card.incorrect {
+            background-color: #f2dede;
+            border-color: var(--error);
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .btn-reset { background: #95a5a6; }
+        .btn-solve { background: var(--primary); }
+
+        .status-text {
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+            min-height: 1.2em;
+        }
+
+        /* Responsive */
+        @media (max-width: 650px) {
+            .matching-grid { grid-template-columns: 1fr; }
+            .column-images { order: 1; display: grid; grid-template-columns: repeat(5, 1fr); }
+            .column-sentences { order: 2; }
+            .image-card { font-size: 2rem; min-height: 50px; padding: 5px; }
+            .sentence-card { font-size: 0.85rem; padding: 8px; min-height: 40px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Bilder & Sätze: Leseverständnis</h1>
+
+    <div class="intro">
+        <strong>Aufgabe:</strong> Kombiniere Bild und Text. Klicke ein Bild und dann den passenden russischen Satz an. 
+        In der Lösung werden Paare durch identische Farben markiert.
+    </div>
+
+    <div class="matching-grid">
+        <div class="column column-images" id="image-col"></div>
+        <div class="column column-sentences" id="sentence-col"></div>
+    </div>
+
+    <div class="status-text" id="status-msg"></div>
+
+    <div class="controls">
+        <button class="btn-action btn-reset" onclick="resetGame()">Neu mischen</button>
+        <button class="btn-action btn-solve" onclick="showSolution()">Lösung farbig zeigen</button>
+    </div>
+</div>
+
+<script>
+    const pairs = [
+        { id: 1, img: "🛌", text: "Спящий в кровати ребёнок." },
+        { id: 2, img: "👨‍💻", text: "Работающий за компьютером человек." },
+        { id: 3, img: "🎤", text: "Красиво поющая на сцене женщина." },
+        { id: 4, img: "📖", text: "Читающая интересную книгу девушка." },
+        { id: 5, img: "⚽", text: "Играющие в футбол на улице дети." },
+        { id: 6, img: "🐱", text: "Пьющая молоко маленькая кошка." },
+        { id: 7, img: "🏃‍♂️", text: "Бегущий по парку спортсмен." },
+        { id: 8, img: "🎨", text: "Рисующий картину художник." },
+        { id: 9, img: "🌳", text: "Растущее в саду старое дерево." },
+        { id: 10, img: "☕", text: "Пьющий горячий кофе мужчина." }
+    ];
+
+    // 10 kräftige Farben für die Paare
+    const colors = [
+        "#e67e22", "#9b59b6", "#34495e", "#16a085", "#27ae60", 
+        "#2980b9", "#d35400", "#c0392b", "#8e44ad", "#2c3e50"
+    ];
+
+    let selectedImg = null;
+    let selectedText = null;
+    let matchedCount = 0;
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    function initGame() {
+        const imgCol = document.getElementById('image-col');
+        const textCol = document.getElementById('sentence-col');
+        imgCol.innerHTML = '';
+        textCol.innerHTML = '';
+        matchedCount = 0;
+        selectedImg = null;
+        selectedText = null;
+        document.getElementById('status-msg').innerText = "";
+
+        const shuffledImgs = shuffle([...pairs]);
+        const shuffledTexts = shuffle([...pairs]);
+
+        shuffledImgs.forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'match-card image-card';
+            div.innerHTML = p.img;
+            div.dataset.id = p.id;
+            div.onclick = () => handleSelect(div, 'img');
+            imgCol.appendChild(div);
+        });
+
+        shuffledTexts.forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'match-card sentence-card';
+            div.innerText = p.text;
+            div.dataset.id = p.id;
+            div.onclick = () => handleSelect(div, 'text');
+            textCol.appendChild(div);
+        });
+    }
+
+    function handleSelect(el, type) {
+        if (el.classList.contains('correct')) return;
+
+        if (type === 'img') {
+            document.querySelectorAll('.image-card').forEach(c => c.classList.remove('selected'));
+            selectedImg = el;
+        } else {
+            document.querySelectorAll('.sentence-card').forEach(c => c.classList.remove('selected'));
+            selectedText = el;
+        }
+        el.classList.add('selected');
+
+        if (selectedImg && selectedText) {
+            checkMatch();
+        }
+    }
+
+    function checkMatch() {
+        if (selectedImg.dataset.id === selectedText.dataset.id) {
+            const pairId = parseInt(selectedImg.dataset.id);
+            const pairColor = colors[pairId - 1];
+            
+            applyMatchStyles(selectedImg, selectedText, pairColor);
+            
+            selectedImg = null;
+            selectedText = null;
+            matchedCount++;
+            
+            if (matchedCount === pairs.length) {
+                document.getElementById('status-msg').innerText = "Hervorragend! Alle 10 Paare korrekt zugeordnet. 🎉";
+                document.getElementById('status-msg').style.color = "var(--success)";
+            }
+        } else {
+            const tempImg = selectedImg;
+            const tempText = selectedText;
+            tempImg.classList.add('incorrect');
+            tempText.classList.add('incorrect');
+            
+            setTimeout(() => {
+                tempImg.classList.remove('incorrect', 'selected');
+                tempText.classList.remove('incorrect', 'selected');
+            }, 500);
+            
+            selectedImg = null;
+            selectedText = null;
+        }
+    }
+
+    function applyMatchStyles(imgEl, textEl, color) {
+        imgEl.className = 'match-card image-card correct';
+        textEl.className = 'match-card sentence-card correct';
+        imgEl.style.backgroundColor = color;
+        imgEl.style.borderColor = color;
+        textEl.style.backgroundColor = color;
+        textEl.style.borderColor = color;
+    }
+
+    function resetGame() {
+        initGame();
+    }
+
+    function showSolution() {
+        const imgCards = document.querySelectorAll('.image-card');
+        const textCards = document.querySelectorAll('.sentence-card');
+
+        pairs.forEach(p => {
+            const imgEl = Array.from(imgCards).find(c => c.dataset.id == p.id);
+            const textEl = Array.from(textCards).find(c => c.dataset.id == p.id);
+            const pairColor = colors[p.id - 1];
+            applyMatchStyles(imgEl, textEl, pairColor);
+        });
+
+        document.getElementById('status-msg').innerText = "Hier ist die farblich sortierte Lösung.";
+        document.getElementById('status-msg').style.color = "var(--primary)";
+        matchedCount = pairs.length;
+    }
+
+    initGame();
+</script>
+
+</body>
+</html>
