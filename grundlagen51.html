@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch Grammatik: Aktives Partizip Präsens</title>
+    <!-- Polyfill für Drag & Drop auf Touch-Geräten -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --bg-color: #f4f7f9;
+            --card-bg: #ffffff;
+            --border-color: #dcdde1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--secondary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h1, h2, h3 {
+            color: var(--secondary-color);
+            text-align: center;
+        }
+
+        h1 { border-bottom: 3px solid var(--primary-color); padding-bottom: 10px; }
+
+        .intro-box {
+            background-color: #e8f4fd;
+            padding: 20px;
+            border-left: 6px solid var(--primary-color);
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .exercise-section { margin-bottom: 40px; }
+
+        .exercise-card {
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            background: #fff;
+            transition: transform 0.2s;
+        }
+
+        .task-text {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        /* Form-Elemente */
+        select {
+            padding: 8px;
+            font-size: 1rem;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            outline: none;
+            transition: all 0.3s;
+            background-color: white;
+        }
+
+        /* Feedback-Klassen */
+        .correct {
+            border-color: var(--success-color) !important;
+            background-color: #d4edda !important;
+            color: #155724 !important;
+            font-weight: bold;
+        }
+
+        .incorrect {
+            border-color: var(--error-color) !important;
+            background-color: #f8d7da !important;
+            color: #721c24 !important;
+        }
+
+        /* Buttons */
+        .btn-group {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: background 0.2s, opacity 0.2s;
+        }
+
+        .btn-reset { background-color: #7f8c8d; color: white; }
+        .btn-solve { background-color: var(--primary-color); color: white; }
+        button:hover { opacity: 0.9; }
+
+        /* Drag and Drop Bereich */
+        .drag-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f1f2f6;
+            border-radius: 10px;
+            justify-content: center;
+            border: 2px dashed #ccc;
+        }
+
+        .draggable {
+            background: var(--secondary-color);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: grab;
+            user-select: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .draggable:active { cursor: grabbing; }
+
+        .dropzone {
+            display: inline-block;
+            min-width: 150px;
+            height: 40px;
+            border: 2px dashed #95a5a6;
+            border-radius: 8px;
+            vertical-align: middle;
+            text-align: center;
+            line-height: 40px;
+            background: #fff;
+            margin: 0 5px;
+            transition: all 0.3s;
+        }
+
+        .dropzone.correct {
+            border: 3px solid var(--success-color) !important;
+            background-color: #d4edda !important;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.4);
+        }
+
+        .dropzone.incorrect {
+            border: 3px solid var(--error-color) !important;
+            background-color: #f8d7da !important;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.4);
+        }
+
+        .solution-hint {
+            display: none;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f0f8ff;
+            border: 1px solid #d0e7ff;
+            border-radius: 6px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .dropzone { min-width: 130px; display: block; margin: 10px auto; }
+            .task-text { text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik: Aktives Partizip Präsens</h1>
+    
+    <div class="intro-box">
+        <h3>Kurz-Einführung</h3>
+        <p>Das aktive Partizip Präsens beschreibt eine Person oder Sache, die <strong>gerade jetzt</strong> eine Handlung ausführt (z. B. der „lesende“ Schüler). Es wird wie ein Adjektiv dekliniert.</p>
+        <p><strong>Bildung:</strong> Man nimmt die 3. Person Plural (они-Form) eines unvollendeten Verbs und ersetzt die Endung <strong>-т</strong> durch:</p>
+        <ul>
+            <li><strong>-ущ- / -ющ-</strong> (1. Konjugation, z. B. пишут → пишущий)</li>
+            <li><strong>-ащ- / -ящ-</strong> (2. Konjugation, z. B. говорят → говорящий)</li>
+        </ul>
+    </div>
+
+    <!-- TEIL 1: BILDUNG -->
+    <div class="exercise-section">
+        <h3>Teil 1: Suffixe und Bildung (Aufg. 1-5)</h3>
+        
+        <div class="exercise-card" id="task1">
+            <span class="task-text">1. работать (они работа-ют) → работа<select onchange="checkSelect(this)" data-ans="ющ"><option value="">--?</option><option value="ущ">ущ</option><option value="ющ">ющ</option><option value="ащ">ащ</option></select>ий</span>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('task1')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task1', 'ющ')">Lösung anzeigen</button>
+            </div>
+            <div class="solution-hint">Lösung: работающий</div>
+        </div>
+
+        <div class="exercise-card" id="task2">
+            <span class="task-text">2. курить (они кур-ят) → кур<select onchange="checkSelect(this)" data-ans="ящ"><option value="">--?</option><option value="ащ">ащ</option><option value="ящ">ящ</option><option value="ущ">ущ</option></select>ий</span>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('task2')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task2', 'ящ')">Lösung anzeigen</button>
+            </div>
+            <div class="solution-hint">Lösung: курящий</div>
+        </div>
+
+        <div class="exercise-card" id="task3">
+            <span class="task-text">3. жить (они жив-ут) → жив<select onchange="checkSelect(this)" data-ans="ущ"><option value="">--?</option><option value="ущ">ущ</option><option value="ющ">ющ</option><option value="ящ">ящ</option></select>ий</span>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('task3')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task3', 'ущ')">Lösung anzeigen</button>
+            </div>
+            <div class="solution-hint">Lösung: живущий</div>
+        </div>
+
+        <div class="exercise-card" id="task4">
+            <span class="task-text">4. молчать (они молч-ат) → молч<select onchange="checkSelect(this)" data-ans="ащ"><option value="">--?</option><option value="ащ">ащ</option><option value="ящ">ящ</option><option value="ущ">ущ</option></select>ий</span>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('task4')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task4', 'ащ')">Lösung anzeigen</button>
+            </div>
+            <div class="solution-hint">Lösung: молчащий</div>
+        </div>
+
+        <div class="exercise-card" id="task5">
+            <span class="task-text">5. знать (они зна-ют) → зна<select onchange="checkSelect(this)" data-ans="ющ"><option value="">--?</option><option value="ущ">ущ</option><option value="ющ">ющ</option><option value="ащ">ащ</option></select>ий</span>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('task5')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task5', 'ющ')">Lösung anzeigen</button>
+            </div>
+            <div class="solution-hint">Lösung: знающий</div>
+        </div>
+    </div>
+
+    <!-- TEIL 2: ZUORDNUNG (DRAG & DROP) -->
+    <div class="exercise-section">
+        <h3>Teil 2: Vokabeln zuordnen (Aufg. 6-10)</h3>
+        <p>Ziehe das russische Partizip zur deutschen Übersetzung. Die Wörter im grauen Bereich sind gemischt.</p>
+        
+        <div class="exercise-card" id="dragSection">
+            <div class="drag-pool" id="pool1">
+                <!-- Gemischte Reihenfolge -->
+                <div class="draggable" draggable="true" id="d5">пьющий</div>
+                <div class="draggable" draggable="true" id="d3">читающий</div>
+                <div class="draggable" draggable="true" id="d1">спящий</div>
+                <div class="draggable" draggable="true" id="d2">поющий</div>
+                <div class="draggable" draggable="true" id="d4">идущий</div>
+            </div>
+
+            <div class="task-text">6. der schlafende: <div class="dropzone" data-ans="спящий" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
+            <div class="task-text">7. der singende: <div class="dropzone" data-ans="поющий" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
+            <div class="task-text">8. der lesende: <div class="dropzone" data-ans="читающий" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
+            <div class="task-text">9. der gehende: <div class="dropzone" data-ans="идущий" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
+            <div class="task-text">10. der trinkende: <div class="dropzone" data-ans="пьющий" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
+
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetDrag('dragSection')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveDrag()">Lösung anzeigen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEIL 3: DEKLINATION -->
+    <div class="exercise-section">
+        <h3>Teil 3: Kasus-Endungen (Aufg. 11-15)</h3>
+        
+        <div class="exercise-card" id="task11">
+            <span class="task-text">11. Я вижу работа<select onchange="checkSelect(this)" data-ans="ющего"><option value="">--?</option><option value="ющий">ющий</option><option value="ющего">ющего</option><option value="ющему">ющему</option></select> мужчину. (Akk.)</span>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('task11')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task11', 'ющего')">Lösung anzeigen</button>
+            </div>
+            <div class="solution-hint">Lösung: работающего (Akkusativ belebt)</div>
+        </div>
+
+        <div class="exercise-card" id="task12">
+            <span class="task-text">12. Мы говорим о живу<select onchange="checkSelect(this)" data-ans="щей"><option value="">--?</option><option value="щая">щая</option><option value="щей">щей</option><option value="щую">щую</option></select> в Москве девушке. (Präp.)</span>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('task12')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task12', 'щей')">Lösung anzeigen</button>
+            </div>
+            <div class="solution-hint">Lösung: живущей (Präpositional fem.)</div>
+        </div>
+
+        <div class="exercise-card" id="task13">
+            <span class="task-text">13. Подойди к пою<select onchange="checkSelect(this)" data-ans="щим"><option value="">--?</option><option value="щие">щие</option><option value="щих">щих</option><option value="щим">щим</option></select> детям. (Dat. Pl.)</span>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('task13')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task13', 'щим')">Lösung anzeigen</button>
+            </div>
+            <div class="solution-hint">Lösung: поющим (Dativ Plural)</div>
+        </div>
+
+        <div class="exercise-card" id="task14">
+            <span class="task-text">14. Письмо от любя<select onchange="checkSelect(this)" data-ans="щей"><option value="">--?</option><option value="щая">щая</option><option value="щей">щей</option><option value="щую">щую</option></select> мамы. (Gen.)</span>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('task14')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task14', 'щей')">Lösung anzeigen</button>
+            </div>
+            <div class="solution-hint">Lösung: любящей (Genitiv fem.)</div>
+        </div>
+
+        <div class="exercise-card" id="task15">
+            <span class="task-text">15. Смею<select onchange="checkSelect(this)" data-ans="щийся"><option value="">--?</option><option value="щийся">щийся</option><option value="щегося">щегося</option><option value="щемуся">щемуся</option></select> ребёнок. (Nom.)</span>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('task15')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task15', 'щийся')">Lösung anzeigen</button>
+            </div>
+            <div class="solution-hint">Lösung: смеющийся (Nominativ masc.)</div>
+        </div>
+    </div>
+
+    <!-- TEIL 4: TRANSFORMATION & KOMMA -->
+    <div class="exercise-section">
+        <h3>Teil 4: Transformation & Kommas (Aufg. 16-20)</h3>
+        
+        <div class="exercise-card" id="task16">
+            <span class="task-text">16. Девушка, которая танцует = <select onchange="checkSelect(this)" data-ans="танцующая"><option value="">--?</option><option value="танцует">танцует</option><option value="танцующая">танцующая</option></select> девушка.</span>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('task16')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task16', 'танцующая')">Lösung anzeigen</button>
+            </div>
+            <div class="solution-hint">Lösung: танцующая</div>
+        </div>
+
+        <div class="exercise-card" id="task17">
+            <span class="task-text">17. Люди, die rauchen = <select onchange="checkSelect(this)" data-ans="курящие"><option value="">--?</option><option value="курят">курят</option><option value="курящие">курящие</option></select> люди.</span>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('task17')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task17', 'курящие')">Lösung anzeigen</button>
+            </div>
+            <div class="solution-hint">Lösung: курящие</div>
+        </div>
+
+        <div class="exercise-card" id="task18">
+            <span class="task-text">18. Много знаю<select onchange="checkSelect(this)" data-ans="щий"><option value="">--?</option><option value="щий">щий</option><option value="щих">щих</option></select> студент (Nom.)</span>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('task18')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task18', 'щий')">Lösung anzeigen</button>
+            </div>
+            <div class="solution-hint">Lösung: знающий</div>
+        </div>
+
+        <div class="exercise-card" id="task19">
+            <span class="task-text">19. Muss hier ein Komma stehen? „Мальчик [,] играющий во дворе, мой брат.“</span>
+            <select onchange="checkSelect(this)" data-ans="ja"><option value="">--?</option><option value="ja">Ja (Komma nötig)</option><option value="nein">Nein</option></select>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('task19')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task19', 'ja')">Lösung anzeigen</button>
+            </div>
+            <div class="solution-hint">Lösung: Ja (Bezugswort steht vor dem Partizipialausdruck)</div>
+        </div>
+
+        <div class="exercise-card" id="task20">
+            <span class="task-text">20. Muss hier ein Komma stehen? „Красиво поющая [,] девушка выступала.“</span>
+            <select onchange="checkSelect(this)" data-ans="nein"><option value="">--?</option><option value="ja">Ja</option><option value="nein">Nein (kein Komma nötig)</option></select>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('task20')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task20', 'nein')">Lösung anzeigen</button>
+            </div>
+            <div class="solution-hint">Lösung: Nein (Bezugswort steht nach dem Partizipialausdruck)</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- DROPDOWN LOGIK ---
+    function checkSelect(el) {
+        if (el.value === "") {
+            el.className = "";
+        } else if (el.value === el.getAttribute('data-ans')) {
+            el.className = "correct";
+        } else {
+            el.className = "incorrect";
+        }
+    }
+
+    function solveTask(id, correctVal) {
+        const card = document.getElementById(id);
+        const sel = card.querySelector('select');
+        const hint = card.querySelector('.solution-hint');
+        if (sel) {
+            sel.value = correctVal;
+            sel.className = "correct";
+        }
+        if (hint) {
+            hint.style.display = "block";
+        }
+    }
+
+    function resetTask(id) {
+        const card = document.getElementById(id);
+        const sel = card.querySelector('select');
+        const hint = card.querySelector('.solution-hint');
+        if (sel) {
+            sel.value = "";
+            sel.className = "";
+        }
+        if (hint) {
+            hint.style.display = "none";
+        }
+    }
+
+    // --- DRAG AND DROP LOGIK ---
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        const data = ev.dataTransfer.getData("text");
+        const draggedEl = document.getElementById(data);
+        const dropzone = ev.target;
+
+        if (dropzone.classList.contains('dropzone')) {
+            // Falls schon ein Element drin ist, zurück in den Pool
+            if (dropzone.childNodes.length > 0) {
+                document.getElementById('pool1').appendChild(dropzone.childNodes[0]);
+            }
+            
+            dropzone.appendChild(draggedEl);
+            
+            // Sofort-Check
+            const correctAns = dropzone.getAttribute('data-ans');
+            if (draggedEl.innerText === correctAns) {
+                dropzone.className = "dropzone correct";
+            } else {
+                dropzone.className = "dropzone incorrect";
+            }
+        }
+    }
+
+    // Event Listener für Draggables initialisieren
+    document.querySelectorAll('.draggable').forEach(item => {
+        item.addEventListener('dragstart', ev => {
+            ev.dataTransfer.setData("text", ev.target.id);
+        });
+    });
+
+    function resetDrag(id) {
+        const pool = document.getElementById('pool1');
+        document.querySelectorAll('.dropzone').forEach(dz => {
+            if (dz.childNodes.length > 0) {
+                pool.appendChild(dz.childNodes[0]);
+            }
+            dz.className = "dropzone";
+        });
+    }
+
+    function solveDrag() {
+        const pool = document.getElementById('pool1');
+        const dzs = document.querySelectorAll('.dropzone');
+        const draggables = document.querySelectorAll('.draggable');
+        
+        dzs.forEach(dz => {
+            const correctAns = dz.getAttribute('data-ans');
+            draggables.forEach(d => {
+                if (d.innerText === correctAns) {
+                    dz.appendChild(d);
+                    dz.className = "dropzone correct";
+                }
+            });
+        });
+    }
+</script>
+
+</body>
+</html>
